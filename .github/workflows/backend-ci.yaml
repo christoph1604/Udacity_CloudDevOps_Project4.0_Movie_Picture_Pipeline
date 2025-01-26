@@ -1,0 +1,67 @@
+name: Backend Continuous Integration
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - './starter/backend/**'
+
+defaults:
+  run:
+    working-directory: ./starter/backend
+
+jobs:
+
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install pipenv
+        run: pip install pipenv
+      - name: Run linter
+        run: |
+          pipenv run lint
+
+  test:
+    runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        - name: Set up Python 3.8
+          uses: actions/setup-python@v1
+          with:
+            python-version: 3.8
+        - name: Install pipenv
+          run: pip install pipenv
+        - name: Install dependencies
+          run: pipenv install
+        - name: Run tests
+          run: pipenv run test
+
+  build: 
+    needs: [linting, test]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+    - name: Install pipenv
+      run: pip install pipenv
+    - name: Install dependencies
+      run: pipenv install
+    - name: Run application
+      run: pipenv run serve
+
+        
+
+

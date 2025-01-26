@@ -1,0 +1,86 @@
+name: Frontend Continuous Deployment
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - './starter/frontend/**'
+
+defaults:
+  run:
+    working-directory: ./starter/frontend
+    env:
+      REACT_APP_MOVIE_API_URL: "http://localhost:5000"
+      IMAGE_NAME: mp-frontend
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SESSION_TOKEN: ${{secrets.AWS_SESSION_TOKEN}}
+      AWS_REGION: ${{secrets.AWS_REGION}}
+      EKS_CLUSTER_NAME: myEKSCluster
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Set up Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+    - name: Install dependencies
+      run: npm ci
+    - name: Run tests
+      run: CI=true npm test
+
+  build: 
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Set up Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Build Docker image
+      run: |
+        IMAGE_TAG=$IMAGE_NAME:${{ github.sha }}
+        docker build --build-arg REACT_APP_MOVIE_API_URL=${REACT_APP_MOVIE_API_URL} --tag=$IMAGE_TAG .
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: $AWS_ACCESS_KEY_ID
+        aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+        aws-session-token: $AWS_SESSION_TOKEN
+        aws-region: $AWS_REGION
+    - name: Login to Amazon ECR
+        id: login-to-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Tag the Docker image
+        run: |
+          IMAGE_URI=${{ steps.login-to-ecr.outputs.registry }}/$IMAGE_TAG
+          docker tag $IMAGE_TAG $IMAGE_URI
+    - name: Push the Docker image to ECR
+      run: |
+        docker push $IMAGE_URI
+
+    - name: Update kubeconfig
+      run: aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
+
+    - name: Setup Kustomize
+      uses: imranismail/setup-kustomize@v2
+    - name: Deploy Docker file to Kubernetes cluster      
+      run: |
+        cd ./k8s
+        kustomize edit set image frontend=$IMAGE_URI
+        kustomize build | kubectl apply -f -
+
+
+

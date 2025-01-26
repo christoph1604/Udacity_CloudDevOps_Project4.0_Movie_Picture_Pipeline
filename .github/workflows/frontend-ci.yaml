@@ -25,11 +25,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: latest
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Install dependencies
         run: npm ci
+
       - name: Run linter
-        id: lint_step
-        run: echo "::set-output name=lint_result::$(npm run lint)"
+        run: npm run lint
 
   test:
     runs-on: ubuntu-latest
@@ -40,11 +47,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: latest
+    - name: Restore cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
     - name: Install dependencies
       run: npm ci
     - name: Run tests
-      id: test_step
-      run: echo "::set-output name=test_result::$(CI=true npm test)"
+      run: CI=true npm test
 
   build: 
     needs: [linting, test]
@@ -56,6 +70,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: latest
+    - name: Restore cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
     - name: Install dependencies
       run: npm ci
     - name: Set up Docker Buildx

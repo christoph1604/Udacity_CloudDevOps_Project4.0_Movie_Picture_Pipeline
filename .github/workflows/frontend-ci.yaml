@@ -24,7 +24,7 @@ jobs:
       - name: Set up Node.js 
         uses: actions/setup-node@v3
         with:
-          node-version: latest
+          node-version: 'latest'
       - name: Restore cache
         uses: actions/cache@v3
         with:
@@ -41,50 +41,47 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-    - name: Set up Node.js 
-      uses: actions/setup-node@v3
-      with:
-        node-version: latest
-    - name: Restore cache
-      uses: actions/cache@v3
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'latest'
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-    - name: Install dependencies
-      run: npm ci
-    - name: Run tests
-      run: CI=true npm test
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: CI=true npm test
 
   build: 
     needs: [linting, test]
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-    - name: Set up Node.js 
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js 
         uses: actions/setup-node@v3
         with:
-          node-version: latest
-    - name: Restore cache
-      uses: actions/cache@v3
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+          node-version: 'latest'
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-    - name: Install dependencies
-      run: npm ci
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    - name: Build Docker image
-      run: |
-        docker build --build-arg REACT_APP_MOVIE_API_URL=${REACT_APP_MOVIE_API_URL} --tag=mp-frontend:latest .
-        
-
-
+      - name: Install dependencies
+        run: npm ci
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build Docker image
+        run: |
+          docker build --build-arg REACT_APP_MOVIE_API_URL=${{ env.REACT_APP_MOVIE_API_URL }} --tag=mp-frontend:latest .

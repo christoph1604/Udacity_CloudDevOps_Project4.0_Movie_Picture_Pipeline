@@ -11,12 +11,6 @@ on:
 defaults:
   run:
     working-directory: ./starter/backend
-    env:
-      IMAGE_NAME: mp-backend
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      EKS_CLUSTER_NAME: myEKSCluster
 
 jobs:
 
@@ -54,6 +48,12 @@ jobs:
   build: 
     needs: [linting, test]
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: mp-backend
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      EKS_CLUSTER_NAME: myEKSCluster
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -95,6 +95,12 @@ jobs:
   deploy:
     needs: [build]
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: mp-backend
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      EKS_CLUSTER_NAME: myEKSCluster
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

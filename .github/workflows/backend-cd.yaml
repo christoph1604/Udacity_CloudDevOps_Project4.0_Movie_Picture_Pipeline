@@ -51,6 +51,7 @@ jobs:
     env:
       IMAGE_NAME: mp-backend
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       EKS_CLUSTER_NAME: myEKSCluster
@@ -98,6 +99,7 @@ jobs:
     env:
       IMAGE_NAME: mp-backend
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       EKS_CLUSTER_NAME: myEKSCluster

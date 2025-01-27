@@ -44,9 +44,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
     - name: Set up Node.js 
-        uses: actions/setup-node@v3
-        with:
-          node-version: latest
+      uses: actions/setup-node@v3
+      with:
+        node-version: latest
     - name: Restore cache
       uses: actions/cache@v3
       with:

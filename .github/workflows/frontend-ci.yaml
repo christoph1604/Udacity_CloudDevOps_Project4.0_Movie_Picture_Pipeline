@@ -11,8 +11,6 @@ on:
 defaults:
   run:
     working-directory: ./starter/frontend
-    env:
-      REACT_APP_MOVIE_API_URL: "http://localhost:5000"
 
 jobs:
 
@@ -60,9 +58,11 @@ jobs:
       - name: Run tests
         run: CI=true npm test
 
-  build: 
+  build:
     needs: [linting, test]
     runs-on: ubuntu-latest
+    env:
+      REACT_APP_MOVIE_API_URL: "http://localhost:5000"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

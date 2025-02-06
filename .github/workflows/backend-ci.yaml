@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: 3.10.16
       - name: Install pipenv
-        run: pip install pipenv
+        run: pip install pipenv --dev
       - name: Run linter
         run: |
           pipenv run lint
@@ -41,7 +41,7 @@ jobs:
       - name: Install pipenv
         run: pip install pipenv
       - name: Install dependencies
-        run: pipenv install --dev
+        run: pipenv install
       - name: Run tests
         run: pipenv run test
 

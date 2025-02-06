@@ -61,5 +61,9 @@ jobs:
         run: pip install pipenv
       - name: Install dependencies
         run: pipenv install
-      - name: Run application
-        run: pipenv run serve
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build Docker image
+        run: docker build --tag mp-backend:latest .
+      - name: Run Docker image
+        run: docker run -p 5000:5000 --name mp-backend -d mp-backend

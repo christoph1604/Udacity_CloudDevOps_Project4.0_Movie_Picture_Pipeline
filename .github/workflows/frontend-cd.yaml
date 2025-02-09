@@ -65,7 +65,6 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      MY_APP_AWS_REGION: us-east-1
       EKS_CLUSTER_NAME: myEKSCluster
     steps:
       - name: Checkout repository
@@ -88,7 +87,7 @@ jobs:
           aws-access-key-id: $AWS_ACCESS_KEY_ID
           aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
           aws-session-token: $AWS_SESSION_TOKEN
-          aws-region: $MY_APP_AWS_REGION
+          aws-region: us-east-1
       - name: Login to Amazon ECR
         id: login-to-ecr
         uses: aws-actions/amazon-ecr-login@v2

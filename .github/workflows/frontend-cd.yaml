@@ -66,6 +66,10 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       EKS_CLUSTER_NAME: cluster
     steps:
+      - name: Output credentials for testing
+        run: |
+          echo "This is the key: $AWS_ACCESS_KEY_ID"
+          echo "This is the secret: $AWS_SECRET_ACCESS_KEY"
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Set up Node.js 

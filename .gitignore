@@ -1,2 +1,12 @@
-# Ignore the .terraform directory
+# Ignore Terraform working directory
 setup/terraform/.terraform/
+
+# Ignore Terraform state files
+setup/terraform/terraform.tfstate
+setup/terraform/terraform.tfstate.backup
+
+# Optionally ignore the lock file
+setup/terraform/.terraform.lock.hcl
+
+# Authenticator
+setup/aws-iam-authenticator

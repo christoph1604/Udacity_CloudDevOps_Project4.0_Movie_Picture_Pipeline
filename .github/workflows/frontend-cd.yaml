@@ -80,13 +80,8 @@ jobs:
           IMAGE_TAG=$IMAGE_NAME:${{ github.sha }}
           docker build --build-arg REACT_APP_MOVIE_API_URL=${{ env.REACT_APP_MOVIE_API_URL }} --tag=$IMAGE_TAG .
 
-      - name: Output credentials for testing
-        run: |
-          echo "This is the key: $AWS_ACCESS_KEY_ID"
-          echo "This is the secret: $AWS_SECRET_ACCESS_KEY"
-
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: $AWS_ACCESS_KEY_ID
           aws-secret-access-key: $AWS_SECRET_ACCESS_KEY

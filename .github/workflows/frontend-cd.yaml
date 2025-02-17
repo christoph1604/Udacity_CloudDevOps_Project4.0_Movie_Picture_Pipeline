@@ -62,6 +62,7 @@ jobs:
     env:
       REACT_APP_MOVIE_API_URL: "http://localhost:5000"
       IMAGE_NAME: mp-frontend
+      IMAGE_TAG: $IMAGE_NAME:${{ github.sha }}
       EKS_CLUSTER_NAME: cluster
     steps:
       - name: Checkout repository
@@ -74,9 +75,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Build Docker image
-        run: |
-          IMAGE_TAG=$IMAGE_NAME:${{ github.sha }}
-          docker build --build-arg REACT_APP_MOVIE_API_URL=${{ env.REACT_APP_MOVIE_API_URL }} --tag=$IMAGE_TAG .
+        run: docker build --build-arg REACT_APP_MOVIE_API_URL=${{ env.REACT_APP_MOVIE_API_URL }} --tag=$IMAGE_TAG .
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

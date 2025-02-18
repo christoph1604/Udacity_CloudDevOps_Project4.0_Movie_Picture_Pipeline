@@ -61,8 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REACT_APP_MOVIE_API_URL: "http://localhost:5000"
-      IMAGE_NAME: mp-frontend
-      IMAGE_TAG: $IMAGE_NAME:${{ github.sha }}
+      IMAGE_TAG: mp-frontend:${{ github.sha }}
       EKS_CLUSTER_NAME: cluster
     steps:
       - name: Checkout repository
@@ -79,7 +78,7 @@ jobs:
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
-        with:
+        with:cd 
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
@@ -89,19 +88,18 @@ jobs:
 
       - name: Tag the Docker image
         run: |
-          IMAGE_URI=${{ steps.login-to-ecr.outputs.registry }}/$IMAGE_TAG
-          docker tag $IMAGE_TAG $IMAGE_URI
+          docker tag $IMAGE_TAG ${{ steps.login-to-ecr.outputs.registry }}/$IMAGE_TAG
       - name: Push the Docker image to ECR
         run: |
-          docker push $IMAGE_URI
+          docker push ${{ steps.login-to-ecr.outputs.registry }}/$IMAGE_TAG
 
       - name: Update kubeconfig
-        run: aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
+        run: aws eks update-kubeconfig --region us-east-1 --name $EKS_CLUSTER_NAME
 
       - name: Setup Kustomize
         uses: imranismail/setup-kustomize@v2
       - name: Deploy Docker file to Kubernetes cluster      
         run: |
           cd ./k8s
-          kustomize edit set image frontend=$IMAGE_URI
+          kustomize edit set image frontend=${{ steps.login-to-ecr.outputs.registry }}/$IMAGE_TAG
           kustomize build | kubectl apply -f -

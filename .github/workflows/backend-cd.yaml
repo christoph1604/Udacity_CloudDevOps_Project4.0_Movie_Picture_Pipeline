@@ -13,7 +13,6 @@ defaults:
     working-directory: ./starter/backend
 
 jobs:
-
   linting:
     runs-on: ubuntu-latest
     steps:
@@ -51,10 +50,8 @@ jobs:
     needs: [linting, test]
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: mp-backend
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      EKS_CLUSTER_NAME: myEKSCluster
+      IMAGE_TAG: mp-backend:${{ github.sha }}
+      EKS_CLUSTER_NAME: cluster
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -71,34 +68,28 @@ jobs:
         uses: docker/setup-buildx-action@v2
       - name: Build Docker image
         run: |
-          IMAGE_TAG=$IMAGE_NAME:${{ github.sha }}
           docker build --tag=$IMAGE_TAG .
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: $AWS_ACCESS_KEY_ID
-          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: Login to Amazon ECR
         id: login-to-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Tag the Docker image
-        run: |
-          IMAGE_URI=${{ steps.login-to-ecr.outputs.registry }}/$IMAGE_TAG
-          docker tag $IMAGE_TAG $IMAGE_URI
+        run: docker tag $IMAGE_TAG ${{ steps.login-to-ecr.outputs.registry }}/$IMAGE_TAG
       - name: Push the Docker image to ECR
-        run: |
-          docker push $IMAGE_URI
+        run: docker push ${{ steps.login-to-ecr.outputs.registry }}/$IMAGE_TAG
 
   deploy:
     needs: [build]
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: mp-backend
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      IMAGE_TAG: mp-backend:${{ github.sha }}
       EKS_CLUSTER_NAME: cluster
     steps:
       - name: Checkout repository
@@ -113,10 +104,10 @@ jobs:
         run: pipenv install
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: $AWS_ACCESS_KEY_ID
-          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Update kubeconfig
@@ -127,5 +118,5 @@ jobs:
       - name: Deploy Docker file to Kubernetes cluster      
         run: |
           cd ./k8s
-          kustomize edit set image backend=$IMAGE_URI
+          kustomize edit set image backend=${{ steps.login-to-ecr.outputs.registry }}/$IMAGE_TAG
           kustomize build | kubectl apply -f -

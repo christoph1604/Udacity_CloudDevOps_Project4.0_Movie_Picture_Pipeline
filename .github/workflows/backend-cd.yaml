@@ -112,6 +112,9 @@ jobs:
 
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
+      - name: Login to Amazon ECR
+        id: login-to-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Setup Kustomize
         uses: imranismail/setup-kustomize@v2
